@@ -104,7 +104,7 @@ func convertRomanizationSystem(input string, t RomanType) string {
 	}
 
 	var i int = int(t) - 1
-	if i > len(romans) {
+	if i >= len(romans) {
 		return ""
 	}
 	return romans[i] + tone

@@ -22,6 +22,19 @@ func Pinyin(ch rune) []string {
 	return getPinyinRecord(ch)
 }
 
+func PinyinF(ch rune, f Format) ([]string, error) {
+	arr := Pinyin(ch)
+
+	for i := 0; i < len(arr); i++ {
+		s, err := formatPinyin(arr[i], f)
+		if err != nil {
+			return nil, err
+		}
+		arr[i] = s
+	}
+	return arr, nil
+}
+
 func GwoyeuRomatzyh(ch rune) []string {
 	hypy := Pinyin(ch)
 	if hypy == nil {

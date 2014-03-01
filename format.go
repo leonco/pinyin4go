@@ -1,10 +1,8 @@
 package pinyin4go
 
 import (
+	"errors"
 	"regexp"
-	//"strconv"
-	//"bytes"
-	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -17,7 +15,62 @@ const (
 	marked   = "āáăàaēéĕèeīíĭìiōóŏòoūúŭùuǖǘǚǜü"
 )
 
-func ConvertToneNumber2ToneMark(pinyin string) string {
+type (
+	CaseType  int
+	ToneType  int
+	VCharType int
+)
+
+const (
+	TONE_NUMBER ToneType = iota
+	TONE_MARK
+	NO_TONE
+)
+
+const (
+	UPPER_CASE CaseType = iota
+	LOWER_CASE
+)
+
+const (
+	U_COLON VCharType = iota
+	V
+	U_UNICODE
+)
+
+type Format struct {
+	VCharType
+	CaseType
+	ToneType
+}
+
+var defaultFormat = Format{U_COLON, LOWER_CASE, TONE_NUMBER}
+
+func formatPinyin(s string, f Format) (string, error) {
+	if f.ToneType == TONE_MARK && (f.VCharType == U_COLON || f.VCharType == V) {
+		return "", errors.New("tone marks cannot be added to v or u:")
+	}
+
+	if f.ToneType == NO_TONE {
+		s = regexp.MustCompile("[1-5]").ReplaceAllString(s, "")
+	} else if f.ToneType == TONE_MARK {
+		s = strings.Replace(s, "u:", "v", -1)
+		s = convertToneNumber2ToneMark(s)
+	}
+
+	if f.VCharType == V {
+		s = strings.Replace(s, "u:", "v", -1)
+	} else if f.VCharType == U_UNICODE {
+		s = strings.Replace(s, "u:", "ü", -1)
+	}
+
+	if f.CaseType == UPPER_CASE {
+		s = strings.ToUpper(s)
+	}
+	return s, nil
+}
+
+func convertToneNumber2ToneMark(pinyin string) string {
 	lowerpy := strings.ToLower(pinyin)
 
 	// bad format
@@ -65,7 +118,6 @@ func ConvertToneNumber2ToneMark(pinyin string) string {
 	if char != unmarkedVowel && index != indexOfUnmarkedVowel {
 		row := strings.IndexRune(unmarked, unmarkedVowel)
 		col := tuneN - 1
-		fmt.Println(row*5 + int(col))
 		c := getMarked(row*5 + int(col))
 		var buf []byte
 		b1 := []byte(strings.Replace(lowerpy[:indexOfUnmarkedVowel], "v", "ü", -1))

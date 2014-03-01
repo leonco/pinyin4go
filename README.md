@@ -1,7 +1,7 @@
 Overview
 =========
 
-pinyin4go is a golang library supporting convertion between Chinese characters and most popular Pinyin systems. The output format of pinyin could be customized. It's a clone of [pinyin4j](http://pinyin4j.sourceforge.net/).
+pinyin4go is a golang library supporting convertion between Chinese characters and most popular Pinyin systems. The output format of pinyin could be customized. It's a golang clone of [pinyin4j](http://pinyin4j.sourceforge.net/).
 
 
 Features
